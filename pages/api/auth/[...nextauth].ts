@@ -1,17 +1,21 @@
-import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import NextAuth from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
 
 export default NextAuth({
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,   // Ensure this is set correctly
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!, // Ensure this is set correctly
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        url: "https://accounts.google.com/o/oauth2/v2/auth",
+        params: {
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
+      scope: 'https://www.googleapis.com/auth/youtube.readonly',
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,  // Ensure this is set correctly
-  session: {
-    strategy: "jwt",  // Use JWT to store session data
-  },
   callbacks: {
     async jwt({ token, account }) {
       if (account?.access_token) {
@@ -26,11 +30,8 @@ export default NextAuth({
       return session;
     },
   },
-  pages: {
-    signIn: '/auth/signin',  // Custom sign-in page (optional)
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    jwt: true,
   },
-  debug: true,  // Enable debugging
 });
-console.log(process.env.GOOGLE_CLIENT_ID);  // This should log your Google Client ID
-console.log(process.env.GOOGLE_CLIENT_SECRET);  // This should log your Google Client Secret
-console.log(process.env.NEXTAUTH_SECRET);  // This should log your NextAuth secret
