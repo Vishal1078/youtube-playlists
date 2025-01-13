@@ -22,21 +22,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Fetch items (videos) for each playlist
     const playlistItemsPromises = playlists?.map(async (playlist) => {
+      if (!playlist?.id) return { playlist: 'Unknown', items: [] };
+
       const itemsResponse = await youtube.playlistItems.list({
         part: 'snippet',
-        playlistId: playlist.id!,
+        playlistId: playlist.id,
       });
 
       return {
-        playlist: playlist.snippet?.title!,
-        items: itemsResponse.data.items!,
+        playlist: playlist.snippet?.title || 'Untitled Playlist',
+        items: itemsResponse.data.items || [],
       };
     });
 
     const playlistsWithItems = await Promise.all(playlistItemsPromises || []);
 
     res.json(playlistsWithItems);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 }

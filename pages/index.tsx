@@ -18,7 +18,6 @@ const Home = () => {
   const [authUrl, setAuthUrl] = useState<string>('');
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   // Check for the access token in the URL when the component is mounted
   useEffect(() => {
@@ -35,31 +34,30 @@ const Home = () => {
   }, []);
 
   // Fetch authentication URL to authenticate with YouTube
-  const fetchAuthUrl = async () => {
-    try {
-      const res = await fetch('/api/auth');
-      const data = await res.json();
-      setAuthUrl(data.url);
-    } catch (error) {
-      setError('Failed to fetch authorization URL');
-    }
-  };
+const fetchAuthUrl = async () => {
+  try {
+    const res = await fetch('/api/auth');
+    const data = await res.json();
+    setAuthUrl(data.url);
+  } catch {
+    console.error('Failed to fetch authorization URL');
+  }
+};
 
-  // Fetch playlists using the access token
-  const fetchPlaylists = async (token: string) => {
-    try {
-      const res = await fetch(`/api/playlists?accessToken=${token}`);
-      const data = await res.json();
-      setPlaylists(data);
-    } catch (error) {
-      setError('Failed to fetch playlists');
-    }
-  };
+// Fetch playlists using the access token
+const fetchPlaylists = async (token: string) => {
+  try {
+    const res = await fetch(`/api/playlists?accessToken=${token}`);
+    const data = await res.json();
+    setPlaylists(data);
+  } catch {
+    console.error('Failed to fetch playlists');
+  }
+};
 
   return (
     <div className="container">
       <h1 className="header">YouTube Playlists</h1>
-      {error && <p className="error">{error}</p>}
 
       {!accessToken ? (
         <div className="auth-container">
@@ -158,12 +156,6 @@ const Home = () => {
 
         .video-link:hover {
           text-decoration: underline;
-        }
-
-        .error {
-          color: red;
-          text-align: center;
-          font-size: 1.2rem;
         }
       `}</style>
     </div>
